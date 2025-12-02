@@ -1,0 +1,38 @@
+name: Facebook Forex News Automation
+
+on:
+  schedule:
+    - cron: '30 0 * * *'  # 06:00 IST (5:30 UTC)
+    - cron: '30 9 * * *'  # 15:00 IST (9:30 UTC)
+    - cron: '30 15 * * *' # 21:00 IST (15:30 UTC)
+  workflow_dispatch:
+
+jobs:
+  post-facebook-news:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Run Facebook news automation
+      env:
+        FACEBOOK_PAGE_ID: ${{ secrets.FACEBOOK_PAGE_ID }}
+        FACEBOOK_PAGE_TOKEN: ${{ secrets.FACEBOOK_PAGE_TOKEN }}
+        GOOGLE_SHEETS_ID: ${{ secrets.GOOGLE_SHEETS_ID }}
+        GOOGLE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
+      run: python auto_post.py
+    
+    - name: Log workflow execution
+      if: always()
+      run: echo "Workflow execution completed at $(date)"
